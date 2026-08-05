@@ -89,7 +89,6 @@ new class extends Component {
             <p class="mt-2 text-gray-500">
 
                 Supported formats:
-                <strong>.docx</strong>,
                 <strong>.xlsx</strong>,
                 <strong>.csv</strong>
 

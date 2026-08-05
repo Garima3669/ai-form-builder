@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use PhpOffice\PhpWord\IOFactory as WordIOFactory;
 use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
 use Illuminate\Support\Str;
 use Exception;
@@ -14,7 +13,6 @@ class DocumentImportService
         $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
         $fields = match ($extension) {
-            'docx' => $this->importWord($path),
             'xlsx' => $this->importExcel($path),
             'csv' => $this->importCsv($path),
             default => throw new Exception('Unsupported file type.')
@@ -29,34 +27,7 @@ class DocumentImportService
 
         return array_values($unique);
     }
-
-    private function importWord(string $path): array
-    {
-        $phpWord = WordIOFactory::load($path);
-
-        $fields = [];
-
-        foreach ($phpWord->getSections() as $section) {
-
-            foreach ($section->getElements() as $element) {
-
-                if (!method_exists($element, 'getText')) {
-                    continue;
-                }
-
-                $text = trim($element->getText());
-
-                if ($this->shouldSkip($text)) {
-                    continue;
-                }
-
-                $fields[] = $this->detectField($text);
-            }
-        }
-
-        return $fields;
-    }
-
+    
     private function importExcel(string $path): array
     {
         $spreadsheet = SpreadsheetIOFactory::load($path);
@@ -134,28 +105,24 @@ class DocumentImportService
         if (str_contains($lower, 'email')) {
 
             $type = 'email';
-
         } elseif (
             str_contains($lower, 'phone') ||
             str_contains($lower, 'mobile')
         ) {
 
             $type = 'phone';
-
         } elseif (
             str_contains($lower, 'date') ||
             str_contains($lower, 'dob')
         ) {
 
             $type = 'date';
-
         } elseif (
             str_contains($lower, 'age') ||
             str_contains($lower, 'number')
         ) {
 
             $type = 'number';
-
         } elseif (str_contains($lower, 'gender')) {
 
             $type = 'select';
@@ -165,7 +132,6 @@ class DocumentImportService
                 'Female',
                 'Other',
             ];
-
         } elseif (
             str_contains($lower, 'rating') ||
             str_contains($lower, 'score')
@@ -180,7 +146,6 @@ class DocumentImportService
                 '4',
                 '5',
             ];
-
         } elseif (
             str_contains($lower, 'comment') ||
             str_contains($lower, 'feedback') ||
