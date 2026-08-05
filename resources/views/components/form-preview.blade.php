@@ -70,8 +70,7 @@ new class extends Component
             href="{{ route('forms.index') }}"
             class="text-blue-600
                    hover:text-blue-800
-                   font-medium"
-        >
+                   font-medium">
             ← Back to My Forms
         </a>
 
